@@ -3,6 +3,12 @@ import { Col, Tooltip, Row } from 'antd';
 import clsx from 'clsx';
 import { DebugButton } from '../DebugButton';
 import { PropsWithChildren, memo } from 'react';
+import {
+  getRoomEnv,
+  getRoomVersion,
+  getShortAddress,
+  safeDecodeURI,
+} from '../utils';
 
 interface Props {
   room: I.SpyRoom;
@@ -23,8 +29,10 @@ const ConnDetailItem = ({
 export const RoomCard = memo(
   ({ room }: Props) => {
     const { address, name, group, tags } = room;
-    const decodeGroup = decodeURI(group);
-    const simpleAddress = address.slice(0, 4);
+    const decodeGroup = safeDecodeURI(group);
+    const simpleAddress = getShortAddress(address);
+    const env = getRoomEnv(room);
+    const version = getRoomVersion(room);
     const { os, browser } = parseUserAgent(name);
 
     return (
@@ -66,6 +74,20 @@ export const RoomCard = memo(
               </ConnDetailItem>
             </Col>
           </Row>
+          <Row wrap={false} style={{ marginBottom: 12 }}>
+            <Col flex={1}>
+              <ConnDetailItem title="Env">
+                <p style={{ fontSize: 16 }}>{env ? env.toUpperCase() : '--'}</p>
+              </ConnDetailItem>
+            </Col>
+            <Col flex={2}>
+              <ConnDetailItem title="Version">
+                <Tooltip title={version || '--'}>
+                  <p style={{ fontSize: 14 }}>{version || '--'}</p>
+                </Tooltip>
+              </ConnDetailItem>
+            </Col>
+          </Row>
           <DebugButton room={room} />
         </div>
       </Col>
@@ -77,6 +99,8 @@ export const RoomCard = memo(
       old.group !== now.group ||
       old.address !== now.address ||
       old.tags.title !== now.tags.title ||
+      old.tags.env !== now.tags.env ||
+      old.tags.version !== now.tags.version ||
       old.connections.length !== now.connections.length
     )
       return false;

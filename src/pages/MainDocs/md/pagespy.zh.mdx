@@ -73,7 +73,25 @@ import { Link } from 'react-router-dom'
 - 类型：`string`
 - 默认值：`--`
 
-    
+### config.env
+
+环境标识，用于在调试端房间列表展示和筛选。
+
+- 类型：
+
+  ```ts
+  type RoomEnv = 'dev' | 'test' | 'uat' | 'prod';
+  ```
+
+- 默认值：未设置
+
+### config.version
+
+版本标识，用于在调试端房间列表展示和筛选。
+
+- 类型：`string`
+- 默认值：未设置
+
 ### config.enableSSL
 
 手动指定 PageSpy 服务的 scheme。
@@ -326,9 +344,13 @@ PageSpy 内置的插件都是开箱即用的，你可以通过插件名称手动
 - 类型
 
   ```ts
+  type RoomEnv = 'dev' | 'test' | 'uat' | 'prod';
+
   type UpdateConfig = {
       title?: string;
       project?: string;
+      env?: RoomEnv;
+      version?: string;
   };
 
   declare class PageSpy {
@@ -345,16 +367,20 @@ PageSpy 内置的插件都是开箱即用的，你可以通过插件名称手动
   ```ts
   window.$pageSpy = new PageSpy({
     title: '--',
-    project: '--'
+    project: '--',
+    env: 'test',
+    version: '1.2.3'
   })
 
   async function YourCode() {
     // 业务逻辑异步加载客户端标识，比如：当前用户、当前项目
-    const { title, project } = await xxx();
+    const { title, project, env, version } = await xxx();
 
     window.$pageSpy.updateRoomInfo({
       title,
-      project
+      project,
+      env,
+      version
     })
   }
   ```
@@ -480,5 +506,4 @@ PageSpy 内置的插件都是开箱即用的，你可以通过插件名称手动
   该面板支持插件注册自定义按钮，例如如果注册了 [DataHarborPlugin](./offline-log#mp)，该面板中会出现一个「上传离线日志」按钮：
 
   <img src={mpDataHarborImg} style={{maxWidth: 375}} />
-
 

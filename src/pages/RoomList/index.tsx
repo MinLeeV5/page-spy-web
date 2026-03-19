@@ -30,12 +30,26 @@ import { RoomCard } from './RoomCard';
 import { Statistics } from './Statistics';
 import { LoadingFallback } from '@/components/LoadingFallback';
 import { debug } from '@/utils/debug';
+import {
+  getRoomEnv,
+  getRoomVersion,
+  matchesRoomKeyword,
+  normalizeSearchValue,
+  ROOM_ENV_OPTIONS,
+} from './utils';
 
 const { Title } = Typography;
 const { Option } = Select;
 const { Sider, Content } = Layout;
 
 const MAXIMUM_CONNECTIONS = 30;
+const DEFAULT_CONDITIONS = {
+  keyword: '',
+  env: '',
+  version: '',
+  os: '',
+  browser: '',
+};
 
 const sortConnections = (data: ClientRoomInfo[]) => {
   const [valid, invalid] = (data || []).reduce(
@@ -69,19 +83,33 @@ const sortConnections = (data: ClientRoomInfo[]) => {
 
 const filterConnections = (
   data: ClientRoomInfo[],
-  condition: Record<'title' | 'address' | 'os' | 'browser', string>,
+  condition: Record<'keyword' | 'env' | 'version' | 'os' | 'browser', string>,
 ) => {
-  const { title = '', address = '', os = '', browser = '' } = condition;
-  const lowerCaseTitle = String(title).trim().toLowerCase();
+  const {
+    keyword = '',
+    env = '',
+    version = '',
+    os = '',
+    browser = '',
+  } = condition;
+  const normalizedVersion = normalizeSearchValue(version);
   return data
-    .filter(({ tags }) => {
-      return String(tags.title).toLowerCase().includes(lowerCaseTitle);
+    .filter((room) => {
+      return matchesRoomKeyword(room, keyword);
     })
-    .filter((i) => i.address.slice(0, 4).includes(address || ''))
+    .filter((room) => {
+      return !env || getRoomEnv(room) === env;
+    })
+    .filter((room) => {
+      return (
+        !normalizedVersion ||
+        normalizeSearchValue(getRoomVersion(room)).includes(normalizedVersion)
+      );
+    })
     .filter((clientInfo) => {
       return (
         (!os || clientInfo.os.type === os) &&
-        (!browser || clientInfo.browser.type.includes(browser))
+        (!browser || clientInfo.browser.type === browser)
       );
     });
 };
@@ -90,16 +118,14 @@ const RoomList = () => {
   const [form] = Form.useForm();
   const { t } = useTranslation();
 
-  const [showMaximumAlert, setMaximumAlert] = useState(false);
   const showLoadingRef = useRef(false);
   const {
     loading,
     data: connectionList = [],
     error,
-    runAsync: requestConnections,
   } = useRequest(
-    async (group = '') => {
-      const res = await getSpyRoom(group);
+    async () => {
+      const res = await getSpyRoom();
       return res.data?.map((conn) => {
         const { os, browser } = parseUserAgent(conn.name);
         return {
@@ -148,33 +174,25 @@ const RoomList = () => {
     });
   }, [connectionList]);
 
-  const [conditions, setConditions] = useState({
-    title: '',
-    address: '',
-    os: '',
-    browser: '',
-  });
+  const [conditions, setConditions] = useState(DEFAULT_CONDITIONS);
 
-  const onFormFinish = useCallback(
-    async (value: any) => {
-      try {
-        await requestConnections(value.project);
-        setConditions((state) => ({
-          ...state,
-          ...value,
-        }));
-      } catch (e: any) {
-        message.error(e.message);
-      }
-    },
-    [requestConnections],
-  );
+  const onFormFinish = useCallback((value: any) => {
+    setConditions({
+      ...DEFAULT_CONDITIONS,
+      ...value,
+    });
+  }, []);
+
+  const matchedConnections = useMemo(() => {
+    return filterConnections(connectionList, conditions);
+  }, [conditions, connectionList]);
+
+  const showMaximumAlert = matchedConnections.length > MAXIMUM_CONNECTIONS;
 
   const mainContent = useMemo(() => {
     if (loading && !showLoadingRef.current) {
       return <LoadingFallback />;
     }
-    const matchedConnections = filterConnections(connectionList, conditions);
     if (error || matchedConnections.length === 0) {
       return (
         <Empty
@@ -184,8 +202,6 @@ const RoomList = () => {
         />
       );
     }
-    setMaximumAlert(matchedConnections.length > MAXIMUM_CONNECTIONS);
-
     const list = sortConnections(
       matchedConnections.slice(0, MAXIMUM_CONNECTIONS),
     );
@@ -197,7 +213,7 @@ const RoomList = () => {
         ))}
       </Row>
     );
-  }, [conditions, connectionList, error, loading]);
+  }, [error, loading, matchedConnections]);
 
   return (
     <Layout style={{ height: '100%' }} className="room-list">
@@ -207,14 +223,22 @@ const RoomList = () => {
             {t('common.connections')}
           </Title>
           <Form layout="vertical" form={form} onFinish={onFormFinish}>
-            <Form.Item label={t('common.device-id')} name="address">
-              <Input placeholder={t('common.device-id')!} allowClear />
+            <Form.Item label={t('connections.search-room')} name="keyword">
+              <Input placeholder={t('connections.search-room')!} allowClear />
             </Form.Item>
-            <Form.Item label={t('common.project')} name="project">
-              <Input placeholder={t('common.project')!} allowClear />
+            <Form.Item label={t('connections.environment')} name="env">
+              <Select placeholder={t('connections.select-env')} allowClear>
+                {ROOM_ENV_OPTIONS.map((env) => {
+                  return (
+                    <Option key={env} value={env}>
+                      {env.toUpperCase()}
+                    </Option>
+                  );
+                })}
+              </Select>
             </Form.Item>
-            <Form.Item label={t('common.title')} name="title">
-              <Input placeholder={t('common.title')!} allowClear />
+            <Form.Item label={t('devtool.version')} name="version">
+              <Input placeholder={t('devtool.version')!} allowClear />
             </Form.Item>
             <Form.Item label={t('common.os')} name="os">
               <Select placeholder={t('connections.select-os')} allowClear>
@@ -233,7 +257,7 @@ const RoomList = () => {
             <Form.Item label={t('devtool.platform')} name="browser">
               <Select
                 listHeight={500}
-                placeholder={t('connections.select-browser')}
+                placeholder={t('connections.select-platform')}
                 allowClear
               >
                 {!!BrowserOptions.length && (

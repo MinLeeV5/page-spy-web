@@ -71,6 +71,25 @@ The corresponding information is displayed below the "Device ID" section on each
 - Type: `string`
 - Default: '--'
 
+### config.env
+
+Environment identifier used for room filtering and display in the debug room list.
+
+- Type:
+
+  ```ts
+  type RoomEnv = 'dev' | 'test' | 'uat' | 'prod';
+  ```
+
+- Default: not set
+
+### config.version
+
+Application version identifier used for room filtering and display in the debug room list.
+
+- Type: `string`
+- Default: not set
+
 ### config.enableSSL
 
 Manually specify the scheme for the PageSpy service.
@@ -311,9 +330,13 @@ Update connection info after instantiation PageSpy.
 - Type
 
   ```ts
+  type RoomEnv = 'dev' | 'test' | 'uat' | 'prod';
+
   type UpdateConfig = {
     title?: string;
     project?: string;
+    env?: RoomEnv;
+    version?: string;
   };
 
   declare class PageSpy {
@@ -331,14 +354,18 @@ Update connection info after instantiation PageSpy.
   window.$pageSpy = new PageSpy({
     title: '--',
     project: '--',
+    env: 'test',
+    version: '1.2.3',
   });
 
   async function YourCode() {
-    const { title, project } = await xxx();
+    const { title, project, env, version } = await xxx();
 
     window.$pageSpy.updateRoomInfo({
       title,
       project,
+      env,
+      version,
     });
   }
   ```
@@ -466,5 +493,4 @@ Show the debugging panel in miniprogram.
   This panel supports plugin registration of custom buttons, for example, if the [DataHarborPlugin](./offline-log#mp) is registered, a button of「Upload Offline Log」will appear in the panel:
 
   <img src={mpDataHarborImg} style={{width: 375}} />
-
 

@@ -12,6 +12,7 @@ import ucSvg from '@/assets/image/uc.svg';
 import baiduSvg from '@/assets/image/baidu.svg';
 import edgeSvg from '@/assets/image/edge.svg';
 import chromeSvg from '@/assets/image/chrome.svg';
+import electronSvg from '@/assets/image/electron.svg';
 import firefoxSvg from '@/assets/image/firefox.svg';
 import safariSvg from '@/assets/image/safari.svg';
 import browserSvg from '@/assets/image/browser.svg';
@@ -40,7 +41,7 @@ interface OSInfo {
 }
 
 interface BrowserInfo {
-  type: SpyClient.Browser;
+  type: ClientBrowserType;
   name: string;
   version: string;
   logo?: string;
@@ -59,6 +60,8 @@ export type ClientRoomInfo = I.SpyRoom & {
   os: OSInfo;
   browser: BrowserInfo;
 };
+
+export type ClientBrowserType = SpyClient.Browser | 'electron';
 
 // Make miniprogram browser types
 export const AllMPTypes: SpyClient.MPType[] = [
@@ -81,8 +84,9 @@ export const AllMPTypes: SpyClient.MPType[] = [
   'mp-uni', // uniapp 自研小程序引擎
 ];
 
-export const AllBrowserTypes: SpyClient.Browser[] = [
+export const AllBrowserTypes: ClientBrowserType[] = [
   'chrome',
+  'electron',
   'edge',
   'firefox',
   'safari',
@@ -113,13 +117,14 @@ export const OS_CONFIG: Record<
 };
 
 export const BROWSER_CONFIG: Record<
-  SpyClient.Browser,
+  ClientBrowserType,
   {
     logo: string;
     label: string;
   }
 > = {
   chrome: { logo: chromeSvg, label: 'Chrome' },
+  electron: { logo: electronSvg, label: 'Electron' },
   firefox: { logo: firefoxSvg, label: 'Firefox' },
   safari: { logo: safariSvg, label: 'Safari' },
   edge: { logo: edgeSvg, label: 'Edge' },
@@ -161,13 +166,16 @@ export const getOSLogo = (os: string) => {
 
 export const getBrowserName = (browser: string) => {
   return (
-    BROWSER_CONFIG[browser.toLowerCase() as SpyClient.Browser]?.label ||
+    BROWSER_CONFIG[browser.toLowerCase() as ClientBrowserType]?.label ||
     'Unknown'
   );
 };
 
 export const getBrowserLogo = (browser: string) => {
-  return BROWSER_CONFIG[browser as SpyClient.Browser]?.logo || browserSvg;
+  return (
+    BROWSER_CONFIG[browser.toLowerCase() as ClientBrowserType]?.logo ||
+    browserSvg
+  );
 };
 
 const MP_REGEXPS = {} as Record<SpyClient.MPType, RegExp>;
@@ -183,6 +191,7 @@ export const BROWSER_REGEXPS = {
   huawei: /(?:HuaweiBrowser)\/([\d.]+)/,
   baidu: /(?:BIDUBrowser|baiduboxapp)[/]?([\d.]*)/,
   edge: /Edg(?:e|A|iOS)?\/([\d.]+)/,
+  electron: /Electron\/([\d.]+)/,
   chrome: /(?:Chrome|CriOS)\/([\d.]+)/,
   firefox: /(?:Firefox|FxiOS)\/([\d.]+)/,
   safari: /Version\/([\d.]+).*Safari/,
@@ -190,7 +199,7 @@ export const BROWSER_REGEXPS = {
   'react-native': /react-native\/([\d.]+)/,
   harmony: /API\/([\d.]+)/,
   ...MP_REGEXPS,
-} as Record<SpyClient.Browser, RegExp>;
+} as Record<ClientBrowserType, RegExp>;
 
 export const OS_REGEXPS = {
   windows: /(Windows NT |windows\/)([\d_.]+)/,
@@ -237,7 +246,7 @@ export function parseUserAgent(uaString: string = '') {
   // 判断浏览器
   for (const key in BROWSER_REGEXPS) {
     if (Object.hasOwn(BROWSER_REGEXPS, key)) {
-      const browser = key as SpyClient.Browser;
+      const browser = key as ClientBrowserType;
       const match = uaString.match(BROWSER_REGEXPS[browser]);
       if (match) {
         browserInfo.type = browser;

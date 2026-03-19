@@ -1,11 +1,11 @@
 import { last } from 'lodash-es';
 
-export type InfoItem = {
+export interface InfoItem {
   keys: string[]; // the key maybe different in different platform
   label: string;
   render?: (props: { value: any }) => JSX.Element;
   icon?: React.ReactNode;
-};
+}
 
 export const DeviceInfo: InfoItem[] = [
   {

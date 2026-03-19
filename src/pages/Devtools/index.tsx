@@ -23,6 +23,7 @@ import { useEventListener } from '@/utils/useEventListener';
 import { useTranslation } from 'react-i18next';
 import { ConnectStatus } from './ConnectStatus';
 import { useSocketMessageStore } from '@/store/socket-message';
+import { ClientBrowserType } from '@/utils/brand';
 import '@huolala-tech/react-json-view/dist/style.css';
 import { throttle } from 'lodash-es';
 import { CUSTOM_EVENT } from '@/store/socket-message/socket';
@@ -44,7 +45,7 @@ const MENU_COMPONENTS: Record<
   {
     component: React.FC;
     visible?: (params: {
-      browser: SpyClient.Browser;
+      browser: ClientBrowserType;
       os: SpyClient.OS;
     }) => boolean;
   }

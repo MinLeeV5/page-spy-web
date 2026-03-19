@@ -200,7 +200,11 @@
     "invalid-secret": "Invalid Password"
   },
   "connections": {
+    "environment": "Environment",
+    "search-room": "Search room",
+    "select-env": "Select environment",
     "select-os": "Select OS",
+    "select-platform": "Select platform",
     "select-browser": "Select browser",
     "select-mp": "Select Mini Program",
     "maximum-alert": "Just show partial connections. Please further filter through the conditions.",

@@ -1,4 +1,13 @@
 declare namespace I {
+  export type RoomEnv = 'dev' | 'test' | 'uat' | 'prod';
+
+  export interface SpyRoomTags {
+    title?: string;
+    env?: RoomEnv;
+    version?: string;
+    [key: string]: any;
+  }
+
   export interface SpyConnection {
     address: string;
     name: string;
@@ -12,7 +21,7 @@ declare namespace I {
     group: string;
     name: string; // TODO this `name` is used for browser and os info, should be reconsidered.
     password: string;
-    tags: Record<string, any>;
+    tags: SpyRoomTags;
     useSecret: boolean;
   }
 

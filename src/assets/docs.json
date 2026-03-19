@@ -135,6 +135,27 @@
     },
     {
       "language": "en",
+      "route": "/docs/changelog#v2-4-6",
+      "parent": "Changelog",
+      "title": "v2.4.6",
+      "content": " 🆕 Updated rrweb related dependencies to 2.0.0-alpha.20 version; 🐛 Fixed some issues; "
+    },
+    {
+      "language": "en",
+      "route": "/docs/changelog#v2-4-5",
+      "parent": "Changelog",
+      "title": "v2.4.5",
+      "content": " 🆕 Fixed the issue where the response data of cancelled network requests is displayed as \"undefined\" in the details panel, see details: https://github.com/HuolalaTech/page-spy-web/issues/390; "
+    },
+    {
+      "language": "en",
+      "route": "/docs/changelog#v2-4-4",
+      "parent": "Changelog",
+      "title": "v2.4.4",
+      "content": " 🆕 Adjusted the interactions in the Network panel; 🐛 Fixed the issue of duplicate data appearing in the Network panel, and corrected the request duration for fetch. "
+    },
+    {
+      "language": "en",
       "route": "/docs/changelog#v2-4-3",
       "parent": "Changelog",
       "title": "v2.4.3",
@@ -422,7 +443,7 @@
     },
     {
       "language": "en",
-      "route": "/docs/data-harbor#onOfflineLog",
+      "route": "/docs/data-harbor#manual",
       "parent": "DataHarborPlugin",
       "title": "Operate log manually",
       "content": "Manually download / upload offline logs. Type interface WholeLogActionParams {   clearCache?: boolean;   remark?: string; } interface PeriodLogActionParams {   startTime: number;   endTime: number;   remark?: string; } // NOTE! // - The browser supports the following 4 methods; // - The mini-program currently only supports the upload() method; declare class DataHarborPlugin {   // Full logs   upload(params?: WholeLogActionParams): Promise<string>;   download(params?: WholeLogActionParams): Promise<void>;   // time-period of logs   uploadPeriods(params: PeriodLogActionParams): Promise<string>;   downloadPeriods(params: PeriodLogActionParams): Promise<void>; } If the automatically rendered UI controls are hidden, or if you wish to automatically trigger operations on offline logs at certain times, this method can be used to achieve that. When operating on full logs, each time the user operates the log upload/download through the buttons on the modal, it is the complete log from the beginning to the end of the current session. However, when called manually, the recorded log data will be cleared by default and recording will start anew. You can control this by setting clearCache: false in the second parameter. Operating on time-period logs will not clear any data. After the upload is completed, the replay URL will be returned and printed to the console. Example window.$harbor = new DataHarborPlugin(); // Upload full logs and clear data and re-record const url = await window.$harbor.upload(); // Upload the logs of the most recent three minutes. const now = Date.now(); const url = await window.$harbor.uploadPeriods({   startTime: now - 3 * 60000,   endTime: now,   remark: 'Add a remark to the problems that occur in this section of the log.' }); "
@@ -734,6 +755,13 @@
       "parent": "FAQ",
       "title": "Why are uploaded file logs missing?",
       "content": "If you do not configure the storageConfig parameter in config.json, the uploaded file logs will be managed locally: Uploaded file logs are saved for up to the latest 10GB and 30 days by default, customizable via configuration Uploaded logs are saved in the log directory under the runtime directory. In Docker runtime, if the container is destroyed, logs will also be lost. Use directory mapping -v ./log:/app/log -v ./data:/app/data for persistence "
+    },
+    {
+      "language": "en",
+      "route": "/docs/faq#large-log",
+      "parent": "FAQ",
+      "title": "How to handle large logs?",
+      "content": "PageSpy collects logs including but not limited to user operations, page changes, console, and network requests, etc. For large logs, we provide solutions from different dimensions. Disable some plugins, click to view: config.disabledPlugins Filter out useless data, click to view: config.dataProcessor Periodically regenerate logs, click to view: manual operation logs "
     },
     {
       "language": "en",
@@ -1059,6 +1087,20 @@
     },
     {
       "language": "en",
+      "route": "/docs/pagespy#config-env",
+      "parent": "Pagespy",
+      "title": "config.env",
+      "content": "Environment identifier used for room filtering and display in the debug room list. Type: type RoomEnv = 'dev' | 'test' | 'uat' | 'prod'; Default: not set "
+    },
+    {
+      "language": "en",
+      "route": "/docs/pagespy#config-version",
+      "parent": "Pagespy",
+      "title": "config.version",
+      "content": "Application version identifier used for room filtering and display in the debug room list. Type: string Default: not set "
+    },
+    {
+      "language": "en",
       "route": "/docs/pagespy#config-enableSSL",
       "parent": "Pagespy",
       "title": "config.enableSSL",
@@ -1069,7 +1111,7 @@
       "route": "/docs/pagespy#config-disabledPlugins",
       "parent": "Pagespy",
       "title": "config.disabledPlugins",
-      "content": "PageSpy comes with built-in plugins ready to use. You can manually specify which plugins to disable. Type: string[] "
+      "content": "PageSpy comes with built-in plugins ready to use. You can manually specify which plugins to disable by plugin name. Type: string[] Default: [] Details: Print PageSpy.pluginsWithOrder.map(i => i.name) in the console to view all plugin names. Example: new PageSpy({   disabledPlugins: ['ConsolePlugin', 'NetworkPlugin'] }) "
     },
     {
       "language": "en",
@@ -1167,7 +1209,7 @@
       "route": "/docs/pagespy#updateRoomInfo",
       "parent": "Pagespy",
       "title": "updateRoomInfo()",
-      "content": "Update connection info after instantiation PageSpy. Type type UpdateConfig = {   title?: string;   project?: string; }; declare class PageSpy {   updateRoomInfo(obj: UpdateConfig): void; } Details The client identification information can be updated later through this method if it is not known when PageSpy is initialized. Example window.$pageSpy = new PageSpy({   title: '--',   project: '--', }); async function YourCode() {   const { title, project } = await xxx();   window.$pageSpy.updateRoomInfo({     title,     project,   }); } "
+      "content": "Update connection info after instantiation PageSpy. Type type RoomEnv = 'dev' | 'test' | 'uat' | 'prod'; type UpdateConfig = {   title?: string;   project?: string;   env?: RoomEnv;   version?: string; }; declare class PageSpy {   updateRoomInfo(obj: UpdateConfig): void; } Details The client identification information can be updated later through this method if it is not known when PageSpy is initialized. Example window.$pageSpy = new PageSpy({   title: '--',   project: '--',   env: 'test',   version: '1.2.3', }); async function YourCode() {   const { title, project, env, version } = await xxx();   window.$pageSpy.updateRoomInfo({     title,     project,     env,     version,   }); } "
     },
     {
       "language": "en",
@@ -1495,6 +1537,27 @@
     },
     {
       "language": "zh",
+      "route": "/docs/changelog#v2-4-6",
+      "parent": "版本日志",
+      "title": "v2.4.6",
+      "content": " 🆕 更新 rrweb 相关依赖到 2.0.0-alpha.20 版本; 🐛 修复一些问题; "
+    },
+    {
+      "language": "zh",
+      "route": "/docs/changelog#v2-4-5",
+      "parent": "版本日志",
+      "title": "v2.4.5",
+      "content": " 🆕 修复取消的网络请求的响应数据在详情面板中显示为 \"undefined\" 的问题，查看详情：https://github.com/HuolalaTech/page-spy-web/issues/390； "
+    },
+    {
+      "language": "zh",
+      "route": "/docs/changelog#v2-4-4",
+      "parent": "版本日志",
+      "title": "v2.4.4",
+      "content": " 🆕 调整网络面板的交互； 🐛 修复网络面板出现重复数据的问题，以及修复 fetch 的请求时长； "
+    },
+    {
+      "language": "zh",
       "route": "/docs/changelog#v2-4-3",
       "parent": "版本日志",
       "title": "v2.4.3",
@@ -1782,7 +1845,7 @@
     },
     {
       "language": "zh",
-      "route": "/docs/data-harbor#onOfflineLog",
+      "route": "/docs/data-harbor#manual",
       "parent": "DataHarborPlugin",
       "title": "手动操作日志",
       "content": "手动操作离线日志的下载、上传。 类型 interface WholeLogActionParams {   clearCache?: boolean;   remark?: string; } interface PeriodLogActionParams {   startTime: number;   endTime: number;   remark?: string; } // 注意！ // - 浏览器端支持下面 4 种方法； // - 小程序端当前仅支持 upload() 方法； declare class DataHarborPlugin {   // 全量日志   upload(params?: WholeLogActionParams): Promise<string>;   download(params?: WholeLogActionParams): Promise<void>;   // 时间段日志   uploadPeriods(params: PeriodLogActionParams): Promise<string>;   downloadPeriods(params: PeriodLogActionParams): Promise<void>; } 详细信息 如果隐藏了自动渲染的 UI 控件，或者希望在某些时候自动触发对离线日志的操作，可以通过该方法实现。 操作 全量日志 时，用户每次通过 UI 弹窗上的按钮操作日志上传 / 下载都是当前会话从头到尾的完整日志；但手动调用时默认会清除已记录的日志数据、并重新开始记录。你可以通过第二个参数的 clearCache: false 自行控制。 操作 时间段日志 不会清除任何数据。 上传完成后会返回回放的 URL，并打印到控制台。 示例 window.$harbor = new DataHarborPlugin(); // 上传全部 const url = await window.$harbor.upload(); // 上传最近 3 分钟的日志 const now = Date.now(); const url = await window.$harbor.uploadPeriods({   startTime: now - 3 * 60000,   endTime: now,   remark: '给这段日志中所出现的问题加个备注' }); "
@@ -2094,6 +2157,13 @@
       "parent": "常见问题解答",
       "title": "为什么上传的文件日志不见了？",
       "content": "如果你没有在 config.json 中配置 storageConfig 参数，那么上传的文件日志会在本地管理： 上传的文件日志默认最多保存最新的 10GB，以及 30 天，可以通过修改配置来自定义 上传日志保存在运行目录的 log 目录下，Docker 运行时，如果容器被销毁日志也会丢失，可以用目录映射 -v ./log:/app/log -v ./data:/app/data 来持久化 "
+    },
+    {
+      "language": "zh",
+      "route": "/docs/faq#large-log",
+      "parent": "常见问题解答",
+      "title": "日志量很大，该如何处理？",
+      "content": "PageSpy 收集的日志包括不限于：用户操作 / 页面变化 / console / 网络请求等等，对于大日志我们提供了不同维度的解决方案： 禁用部分插件，点击查看：config.disabledPlugins 过滤掉无用的数据，点击查看：config.dataProcessor 定期重新制作日志，点击查看：手动操作日志 "
     },
     {
       "language": "zh",
@@ -2419,6 +2489,20 @@
     },
     {
       "language": "zh",
+      "route": "/docs/pagespy#config-env",
+      "parent": "Pagespy",
+      "title": "config.env",
+      "content": "环境标识，用于在调试端房间列表展示和筛选。 类型： type RoomEnv = 'dev' | 'test' | 'uat' | 'prod'; 默认值：未设置 "
+    },
+    {
+      "language": "zh",
+      "route": "/docs/pagespy#config-version",
+      "parent": "Pagespy",
+      "title": "config.version",
+      "content": "版本标识，用于在调试端房间列表展示和筛选。 类型：string 默认值：未设置 "
+    },
+    {
+      "language": "zh",
       "route": "/docs/pagespy#config-enableSSL",
       "parent": "Pagespy",
       "title": "config.enableSSL",
@@ -2429,7 +2513,7 @@
       "route": "/docs/pagespy#config-disabledPlugins",
       "parent": "Pagespy",
       "title": "config.disabledPlugins",
-      "content": "PageSpy 内置的插件都是开箱即用的，你可以手动指定禁用哪些插件。 类型：string[] "
+      "content": "PageSpy 内置的插件都是开箱即用的，你可以通过插件名称手动指定禁用哪些插件。 类型：string[] 默认值：[] 详细信息：在控制台打印 PageSpy.pluginsWithOrder.map(i => i.name) 查看所有插件名称。 示例： new PageSpy({   disabledPlugins: ['ConsolePlugin', 'NetworkPlugin'] }) "
     },
     {
       "language": "zh",
@@ -2527,7 +2611,7 @@
       "route": "/docs/pagespy#updateRoomInfo",
       "parent": "Pagespy",
       "title": "updateRoomInfo()",
-      "content": "实例化之后，更新连接信息。 类型 type UpdateConfig = {     title?: string;     project?: string; }; declare class PageSpy {   updateRoomInfo(obj: UpdateConfig): void; } 详细信息 客户端的标识信息在 PageSpy 初始化的时候如果还不知道，之后可以通过这个方法更新。 示例 window.$pageSpy = new PageSpy({   title: '--',   project: '--' }) async function YourCode() {   // 业务逻辑异步加载客户端标识，比如：当前用户、当前项目   const { title, project } = await xxx();   window.$pageSpy.updateRoomInfo({     title,     project   }) } "
+      "content": "实例化之后，更新连接信息。 类型 type RoomEnv = 'dev' | 'test' | 'uat' | 'prod'; type UpdateConfig = {     title?: string;     project?: string;     env?: RoomEnv;     version?: string; }; declare class PageSpy {   updateRoomInfo(obj: UpdateConfig): void; } 详细信息 客户端的标识信息在 PageSpy 初始化的时候如果还不知道，之后可以通过这个方法更新。 示例 window.$pageSpy = new PageSpy({   title: '--',   project: '--',   env: 'test',   version: '1.2.3' }) async function YourCode() {   // 业务逻辑异步加载客户端标识，比如：当前用户、当前项目   const { title, project, env, version } = await xxx();   window.$pageSpy.updateRoomInfo({     title,     project,     env,     version   }) } "
     },
     {
       "language": "zh",
@@ -2855,6 +2939,27 @@
     },
     {
       "language": "ja",
+      "route": "/docs/changelog#v2-4-6",
+      "parent": "Changelog",
+      "title": "v2.4.6",
+      "content": " 🆕 rrweb 関連の依存関係を 2.0.0-alpha.20 バージョンに更新しました; 🐛 いくつかの問題を修正しました; "
+    },
+    {
+      "language": "ja",
+      "route": "/docs/changelog#v2-4-5",
+      "parent": "Changelog",
+      "title": "v2.4.5",
+      "content": " 🆕 キャンセルされたネットワークリクエストの応答データが詳細パネルで \"undefined\" と表示される問題を修正しました。詳細はこちら：https://github.com/HuolalaTech/page-spy-web/issues/390; "
+    },
+    {
+      "language": "ja",
+      "route": "/docs/changelog#v2-4-4",
+      "parent": "Changelog",
+      "title": "v2.4.4",
+      "content": " 🆕 ネットワークパネルのインタラクションを調整しました。 🐛 ネットワークパネルで重複データが表示される問題を修正し、fetch のリクエスト時間を修正しました。 "
+    },
+    {
+      "language": "ja",
       "route": "/docs/changelog#v2-4-3",
       "parent": "Changelog",
       "title": "v2.4.3",
@@ -3142,7 +3247,7 @@
     },
     {
       "language": "ja",
-      "route": "/docs/data-harbor#onOfflineLog",
+      "route": "/docs/data-harbor#manual",
       "parent": "DataHarborPlugin",
       "title": "手動でログを操作",
       "content": "オフラインログのダウンロード・アップロードを手動で操作します。 型定義 interface WholeLogActionParams {   clearCache?: boolean;   remark?: string; } interface PeriodLogActionParams {   startTime: number;   endTime: number;   remark?: string; } // 注意！ // - ブラウザは以下の4つのメソッドをサポート // - ミニプログラムは現在 upload() メソッドのみサポート declare class DataHarborPlugin {   // 全量ログ   upload(params?: WholeLogActionParams): Promise<string>;   download(params?: WholeLogActionParams): Promise<void>;   // 期間指定ログ   uploadPeriods(params: PeriodLogActionParams): Promise<string>;   downloadPeriods(params: PeriodLogActionParams): Promise<void>; } 詳細情報 自動レンダリングされる UI コントロールを非表示にした場合や、特定のタイミングでオフラインログの操作を自動的にトリガーしたい場合に、このメソッドを使用できます。 全量ログを操作する場合、UI ポップアップのボタンを通じてログのアップロード/ダウンロードを行うと、現在のセッションの最初から最後までの完全なログが対象となります。ただし、手動で呼び出す場合は、デフォルトで記録済みのログデータがクリアされ、新たに記録が開始されます。第2引数の clearCache: false で制御可能です。 期間指定ログの操作ではデータはクリアされません。 アップロード完了後、再生用の URL が返され、コンソールに出力されます。 使用例 window.$harbor = new DataHarborPlugin(); // 全量をアップロード const url = await window.$harbor.upload(); // データをクリアせずにアップロード const url = await window.$harbor.upload({ clearCache: false }); // 期間指定でアップロード const url = await window.$harbor.uploadPeriods({   startTime: Date.now() - 1000 * 60, // 1分前から   endTime: Date.now(), }); "
@@ -3454,6 +3559,13 @@
       "parent": "よくある質問",
       "title": "アップロードしたファイルログが見つからないのはなぜですか？",
       "content": "config.json に storageConfig パラメータが設定されていない場合、アップロードされたファイルログはローカルで管理されます： アップロードされたファイルログは、デフォルトで最新の10GBまで、および30日間保存されます。設定でカスタマイズ可能です アップロードログは実行ディレクトリのlogディレクトリに保存されます。Dockerで実行している場合、コンテナが破棄されるとログも失われます。-v ./log:/app/log -v ./data:/app/dataでディレクトリをマッピングして永続化することができます "
+    },
+    {
+      "language": "ja",
+      "route": "/docs/faq#large-log",
+      "parent": "よくある質問",
+      "title": "大きいログをどのように処理しますか？",
+      "content": "PageSpyは、ユーザー操作 / インターフェース変更 / コンソール / ネットワークリクエストなどを含む、さまざまなログを収集します。大きいログについては、異なる次元のソリューションを提供しています： 一部のプラグインを無効にする。クリックして表示：config.disabledPlugins 不要なデータをフィルタリングする。クリックして表示：config.dataProcessor 定期的にログを再生成する。クリックして表示：手動操作ログ "
     },
     {
       "language": "ja",
@@ -3779,6 +3891,20 @@
     },
     {
       "language": "ja",
+      "route": "/docs/pagespy#config-env",
+      "parent": "Pagespy",
+      "title": "config.env",
+      "content": "デバッグ側のルームリストで表示および絞り込みに使われる環境識別子。 型： type RoomEnv = 'dev' | 'test' | 'uat' | 'prod'; デフォルト値：未設定 "
+    },
+    {
+      "language": "ja",
+      "route": "/docs/pagespy#config-version",
+      "parent": "Pagespy",
+      "title": "config.version",
+      "content": "デバッグ側のルームリストで表示および絞り込みに使われるバージョン識別子。 型：string デフォルト値：未設定 "
+    },
+    {
+      "language": "ja",
       "route": "/docs/pagespy#config-enableSSL",
       "parent": "Pagespy",
       "title": "config.enableSSL",
@@ -3789,7 +3915,7 @@
       "route": "/docs/pagespy#config-disabledPlugins",
       "parent": "Pagespy",
       "title": "config.disabledPlugins",
-      "content": "PageSpyの組み込みプラグインはすべてすぐに使用できますが、手動で特定のプラグインを無効にすることができます。 型：string[] "
+      "content": "PageSpyの組み込みプラグインはすべてすぐに使用できますが、手動で特定のプラグインを無効にすることができます。 型：string[] デフォルト値：[] 詳細情報：コンソールで PageSpy.pluginsWithOrder.map(i => i.name) を印刷してすべてのプラグイン名を表示します。 例： new PageSpy({   disabledPlugins: ['ConsolePlugin', 'NetworkPlugin'] }) "
     },
     {
       "language": "ja",
@@ -3887,7 +4013,7 @@
       "route": "/docs/pagespy#updateRoomInfo",
       "parent": "Pagespy",
       "title": "updateRoomInfo()",
-      "content": "インスタンス化後、接続情報を更新します。 型 type UpdateConfig = {     title?: string;     project?: string; }; declare class PageSpy {   updateRoomInfo(obj: UpdateConfig): void; } 詳細情報 クライアントの識別情報がPageSpy初期化時にまだ不明な場合、後でこのメソッドを使用して更新できます。 例 window.$pageSpy = new PageSpy({   title: '--',   project: '--' }) async function YourCode() {   // ビジネスロジックが非同期でクライアント識別子を読み込む、例：現在のユーザー、現在のプロジェクト   const { title, project } = await xxx();   window.$pageSpy.updateRoomInfo({     title,     project   }) } "
+      "content": "インスタンス化後、接続情報を更新します。 型 type RoomEnv = 'dev' | 'test' | 'uat' | 'prod'; type UpdateConfig = {     title?: string;     project?: string;     env?: RoomEnv;     version?: string; }; declare class PageSpy {   updateRoomInfo(obj: UpdateConfig): void; } 詳細情報 クライアントの識別情報がPageSpy初期化時にまだ不明な場合、後でこのメソッドを使用して更新できます。 例 window.$pageSpy = new PageSpy({   title: '--',   project: '--',   env: 'test',   version: '1.2.3' }) async function YourCode() {   // ビジネスロジックが非同期でクライアント識別子を読み込む、例：現在のユーザー、現在のプロジェクト   const { title, project, env, version } = await xxx();   window.$pageSpy.updateRoomInfo({     title,     project,     env,     version   }) } "
     },
     {
       "language": "ja",
@@ -4215,6 +4341,27 @@
     },
     {
       "language": "ko",
+      "route": "/docs/changelog#v2-4-6",
+      "parent": "Changelog",
+      "title": "v2.4.6",
+      "content": " 🆕 rrweb 관련 종속성을 2.0.0-alpha.20 버전으로 업데이트했습니다; 🐛 몇 가지 문제를 수정했습니다; "
+    },
+    {
+      "language": "ko",
+      "route": "/docs/changelog#v2-4-5",
+      "parent": "Changelog",
+      "title": "v2.4.5",
+      "content": " 🆕 취소된 네트워크 요청의 응답 데이터가 상세 패널에 \"undefined\"로 표시되는 문제를 수정했습니다. 자세한 내용은 https://github.com/HuolalaTech/page-spy-web/issues/390 참조하세요; "
+    },
+    {
+      "language": "ko",
+      "route": "/docs/changelog#v2-4-4",
+      "parent": "Changelog",
+      "title": "v2.4.4",
+      "content": " 🆕 네트워크 패널의 인터랙션을 조정했습니다. 🐛 네트워크 패널에서 중복 데이터가 표시되는 문제와 fetch 요청 시간 계산 문제를 수정했습니다. "
+    },
+    {
+      "language": "ko",
       "route": "/docs/changelog#v2-4-3",
       "parent": "Changelog",
       "title": "v2.4.3",
@@ -4502,7 +4649,7 @@
     },
     {
       "language": "ko",
-      "route": "/docs/data-harbor#onOfflineLog",
+      "route": "/docs/data-harbor#manual",
       "parent": "DataHarborPlugin",
       "title": "수동으로 로그 조작",
       "content": "오프라인 로그의 다운로드와 업로드를 수동으로 조작합니다. 타입 정의 interface WholeLogActionParams {   clearCache?: boolean;   remark?: string; } interface PeriodLogActionParams {   startTime: number;   endTime: number;   remark?: string; } // 주의! // - 브라우저는 아래 4가지 메서드를 지원 // - 미니 프로그램은 현재 upload() 메서드만 지원 declare class DataHarborPlugin {   // 전체 로그   upload(params?: WholeLogActionParams): Promise<string>;   download(params?: WholeLogActionParams): Promise<void>;   // 기간별 로그   uploadPeriods(params: PeriodLogActionParams): Promise<string>;   downloadPeriods(params: PeriodLogActionParams): Promise<void>; } 상세 정보 자동 렌더링되는 UI 컨트롤을 숨기거나 특정 시점에 오프라인 로그 조작을 자동으로 트리거하고 싶을 때 이 메서드를 사용할 수 있습니다. 전체 로그를 조작할 때, UI 팝업의 버튼을 통해 로그를 업로드/다운로드하면 현재 세션의 처음부터 끝까지의 완전한 로그가 대상이 됩니다. 하지만 수동으로 호출할 경우 기본적으로 기록된 로그 데이터가 지워지고 새로 기록이 시작됩니다. 두 번째 매개변수의 clearCache: false로 제어할 수 있습니다. 기간별 로그 조작은 데이터를 지우지 않습니다. 업로드가 완료되면 재생용 URL이 반환되어 콘솔에 출력됩니다. 사용 예시 window.$harbor = new DataHarborPlugin(); // 전체 업로드 const url = await window.$harbor.upload(); // 데이터를 지우지 않고 업로드 const url = await window.$harbor.upload({ clearCache: false }); // 기간별 업로드 const url = await window.$harbor.uploadPeriods({   startTime: Date.now() - 1000 * 60, // 1분 전부터   endTime: Date.now(), }); "
@@ -4814,6 +4961,13 @@
       "parent": "자주 묻는 질문",
       "title": "업로드한 파일 로그가 보이지 않는 이유는 무엇인가요?",
       "content": "config.json에 storageConfig 매개변수가 설정되지 않은 경우, 업로드된 파일 로그는 로컬에서 관리됩니다: 업로드된 파일 로그는 기본적으로 최신 10GB 및 30일 동안 저장되며, 구성을 통해 사용자 정의 가능 업로드 로그는 실행 디렉토리의 log 디렉토리에 저장됩니다. Docker로 실행하는 경우 컨테이너가 삭제되면 로그도 함께 삭제됩니다. -v ./log:/app/log -v ./data:/app/data 디렉토리 매핑을 사용하여 영구 저장할 수 있습니다 "
+    },
+    {
+      "language": "ko",
+      "route": "/docs/faq#large-log",
+      "parent": "자주 묻는 질문",
+      "title": "대규모 로그를 어떻게 처리할 수 있나요?",
+      "content": "PageSpy는 사용자 작업、페이지 변경、콘솔、네트워크 요청 등을 포함하여 다양한 로그를 수집합니다. 대규모 로그에 대해서는 다양한 차원의 솔루션을 제공합니다: 일부 플러그인 비활성화, 클릭하여 보기: config.disabledPlugins 유용하지 않은 데이터 필터링, 클릭하여 보기: config.dataProcessor 주기적으로 로그 재생, 클릭하여 보기: 수동 로그 작업 "
     },
     {
       "language": "ko",
@@ -5139,6 +5293,20 @@
     },
     {
       "language": "ko",
+      "route": "/docs/pagespy#config-env",
+      "parent": "Pagespy",
+      "title": "config.env",
+      "content": "디버그 측 룸 목록에서 표시 및 필터링에 사용하는 환경 식별자입니다. 타입： type RoomEnv = 'dev' | 'test' | 'uat' | 'prod'; 기본값：설정하지 않음 "
+    },
+    {
+      "language": "ko",
+      "route": "/docs/pagespy#config-version",
+      "parent": "Pagespy",
+      "title": "config.version",
+      "content": "디버그 측 룸 목록에서 표시 및 필터링에 사용하는 버전 식별자입니다. 타입：string 기본값：설정하지 않음 "
+    },
+    {
+      "language": "ko",
       "route": "/docs/pagespy#config-enableSSL",
       "parent": "Pagespy",
       "title": "config.enableSSL",
@@ -5149,7 +5317,7 @@
       "route": "/docs/pagespy#config-disabledPlugins",
       "parent": "Pagespy",
       "title": "config.disabledPlugins",
-      "content": "PageSpy의 내장 플러그인은 모두 즉시 사용 가능하며, 수동으로 비활성화할 플러그인을 지정할 수 있습니다. 타입：string[] "
+      "content": "PageSpy의 내장 플러그인은 모두 즉시 사용 가능하며, 수동으로 비활성화할 플러그인을 지정할 수 있습니다. 타입：string[] 기본값：[] 상세 정보：콘솔에서 PageSpy.pluginsWithOrder.map(i => i.name)을 출력하여 모든 플러그인 이름을 확인할 수 있습니다. 예시： new PageSpy({   disabledPlugins: ['ConsolePlugin', 'NetworkPlugin'] }) "
     },
     {
       "language": "ko",
@@ -5247,7 +5415,7 @@
       "route": "/docs/pagespy#updateRoomInfo",
       "parent": "Pagespy",
       "title": "updateRoomInfo()",
-      "content": "인스턴스화 이후, 연결 정보를 업데이트합니다. 타입 type UpdateConfig = {     title?: string;     project?: string; }; declare class PageSpy {   updateRoomInfo(obj: UpdateConfig): void; } 상세 정보 클라이언트의 식별 정보가 PageSpy 초기화 시점에 아직 알 수 없는 경우, 나중에 이 메서드를 통해 업데이트할 수 있습니다. 예시 window.$pageSpy = new PageSpy({   title: '--',   project: '--' }) async function YourCode() {   // 비즈니스 로직이 비동기적으로 클라이언트 식별자를 로드, 예: 현재 사용자, 현재 프로젝트   const { title, project } = await xxx();   window.$pageSpy.updateRoomInfo({     title,     project   }) } "
+      "content": "인스턴스화 이후, 연결 정보를 업데이트합니다. 타입 type RoomEnv = 'dev' | 'test' | 'uat' | 'prod'; type UpdateConfig = {     title?: string;     project?: string;     env?: RoomEnv;     version?: string; }; declare class PageSpy {   updateRoomInfo(obj: UpdateConfig): void; } 상세 정보 클라이언트의 식별 정보가 PageSpy 초기화 시점에 아직 알 수 없는 경우, 나중에 이 메서드를 통해 업데이트할 수 있습니다. 예시 window.$pageSpy = new PageSpy({   title: '--',   project: '--',   env: 'test',   version: '1.2.3' }) async function YourCode() {   // 비즈니스 로직이 비동기적으로 클라이언트 식별자를 로드, 예: 현재 사용자, 현재 프로젝트   const { title, project, env, version } = await xxx();   window.$pageSpy.updateRoomInfo({     title,     project,     env,     version   }) } "
     },
     {
       "language": "ko",

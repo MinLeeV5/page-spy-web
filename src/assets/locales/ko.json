@@ -199,7 +199,11 @@
     "invalid-secret": "잘못된 비밀번호"
   },
   "connections": {
+    "environment": "환경",
+    "search-room": "방 검색",
+    "select-env": "환경 선택",
     "select-os": "운영 체제 선택",
+    "select-platform": "플랫폼 선택",
     "select-browser": "브라우저 선택",
     "select-mp": "Mini Program 선택",
     "maximum-alert": "일부 연결만 표시됩니다. 조건을 통해 추가로 필터링하세요.",

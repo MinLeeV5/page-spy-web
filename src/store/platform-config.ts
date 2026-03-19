@@ -1,30 +1,30 @@
 import StorageSvg from '@/assets/image/storage.svg?react';
 import CookieSvg from '@/assets/image/cookie.svg?react';
 import DatabaseSvg from '@/assets/image/database.svg?react';
-import { SpyClient, SpyStorage } from '@huolala-tech/page-spy-types';
+import { SpyStorage } from '@huolala-tech/page-spy-types';
 import { FunctionComponent } from 'react';
 import { useSocketMessageStore } from './socket-message';
-import { AllBrowserTypes } from '@/utils/brand';
+import { AllBrowserTypes, ClientBrowserType } from '@/utils/brand';
 import { useShallow } from 'zustand/react/shallow';
 export type StorageType = SpyStorage.DataType | 'AppStorage';
 
-export const isBrowser = (browser: SpyClient.Browser) => {
+export const isBrowser = (browser: ClientBrowserType) => {
   return AllBrowserTypes.includes(browser);
 };
 
-export const isMiniProgram = (browser: SpyClient.Browser) => {
+export const isMiniProgram = (browser: ClientBrowserType) => {
   return browser.startsWith('mp-');
 };
 
-export const isUniAppNative = (browser: SpyClient.Browser) => {
+export const isUniAppNative = (browser: ClientBrowserType) => {
   return browser === 'uni-native';
 };
 
-export const isHarmonyApp = (browser: SpyClient.Browser) => {
+export const isHarmonyApp = (browser: ClientBrowserType) => {
   return browser === 'harmony';
 };
 
-export const isReactNative = (browser: SpyClient.Browser) => {
+export const isReactNative = (browser: ClientBrowserType) => {
   return browser === 'react-native';
 };
 
@@ -32,7 +32,7 @@ export const STORAGE_TYPES: {
   name: StorageType | 'indexedDB';
   label: string;
   icon: FunctionComponent;
-  visible: (browser: SpyClient.Browser) => boolean;
+  visible: (browser: ClientBrowserType) => boolean;
 }[] = [
   {
     name: 'localStorage',
@@ -85,6 +85,6 @@ export const useStorageTypes = () => {
     useShallow((state) => state.clientInfo),
   );
   return STORAGE_TYPES.filter((s) => {
-    return s.visible(clientInfo?.browser.type || 'unknown');
+    return s.visible(clientInfo?.browser.type ?? 'unknown');
   });
 };
