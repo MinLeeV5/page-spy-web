@@ -1,14 +1,26 @@
 .room-list {
+  background: radial-gradient(
+      circle at top right,
+      fade(@primary-color, 10%) 0,
+      transparent 30%
+    ),
+    linear-gradient(180deg, #f7f9fc 0%, #eef2f7 100%);
+
   &-sider {
     height: 100%;
     display: grid;
     padding: 24px;
     grid-template-rows: auto 1fr auto;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(10px);
+    border-right: 1px solid rgba(15, 23, 42, 0.06);
+
     .maximum-alert {
       position: relative;
       font-size: 12px;
       text-align: right;
       color: fade(@primary-color, 90%);
+
       &::before {
         content: '*';
         color: red;
@@ -17,15 +29,18 @@
         margin-right: 2px;
       }
     }
+
     .statistics {
       &-item {
         text-align: center;
+
         p:nth-child(1) {
           font-size: 12px;
           color: #999;
           text-align: center;
           margin-bottom: 8px;
         }
+
         p:nth-child(2) {
           cursor: pointer;
           font-size: 20px;
@@ -34,73 +49,312 @@
       }
     }
   }
-  .connection-item {
-    margin-bottom: 24px;
-    padding: 12px;
-    background-color: #fff;
-    border-radius: 6px;
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1);
-    transition: all ease-out 0.3s;
-    &:hover {
-      transform: translateY(-4px);
-      box-shadow: 0px 8px 4px rgba(0, 0, 0, 0.1);
+
+  &-content {
+    height: 100%;
+    padding: 24px;
+    overflow: auto;
+  }
+
+  &-groups {
+    display: grid;
+    gap: 16px;
+    background: transparent;
+
+    .ant-collapse-item {
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      border-radius: 20px;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.06);
     }
-    &__title {
+
+    .ant-collapse-header {
+      align-items: center !important;
+      padding: 14px 18px !important;
+    }
+
+    .ant-collapse-content-box {
+      padding: 0 !important;
+    }
+  }
+
+  .room-group-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-width: 0;
+
+    &__main {
+      min-width: 0;
+      flex: 1;
+    }
+
+    &__title-row {
       display: flex;
-      justify-content: center;
       align-items: center;
-      flex-direction: column;
-      gap: 4px;
-      padding-block: 8px;
-      text-align: center;
+      gap: 12px;
+      min-width: 0;
     }
-    .custom-title {
-      padding-inline: 8px;
+
+    &__title {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    &__logo {
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: #f8fafc;
+      border: 1px solid rgba(15, 23, 42, 0.06);
+      border-radius: 10px;
+
+      img {
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    &__title {
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 700;
+      color: #172033;
+    }
+
+    &__chips {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    &__chip {
+      max-width: 200px;
+      padding: 4px 10px;
       font-size: 12px;
       line-height: 18px;
-      color: #fff;
-      background-color: fade(@primary-color, 50%);
-      border-radius: 999px;
-      max-width: 80%;
+      font-weight: 600;
+      color: #526077;
       white-space: nowrap;
-      text-overflow: ellipsis;
       overflow: hidden;
-    }
-    &__info {
-      > div {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        gap: 6px;
-        &:first-child {
-          margin-bottom: 8px;
-        }
+      text-overflow: ellipsis;
+      background: #f5f7fb;
+      border-radius: 999px;
+
+      &.is-active {
+        color: #1677ff;
+        background: fade(#1677ff, 10%);
       }
     }
-    .conn-detail {
-      &__title {
-        font-size: 12px;
-        color: #999;
-        text-align: center;
+  }
+
+  .room-list-table {
+    .ant-table {
+      background: transparent;
+    }
+
+    .ant-table-container {
+      border-inline-start: 0 !important;
+      border-top: 1px solid rgba(15, 23, 42, 0.06) !important;
+      border-start-start-radius: 0 !important;
+      border-start-end-radius: 0 !important;
+    }
+
+    .ant-table-thead > tr > th {
+      padding: 14px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #6b7280;
+      background: rgba(247, 249, 252, 0.92);
+      border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+    }
+
+    .ant-table-tbody > tr > td {
+      padding: 16px;
+      vertical-align: top;
+      background: transparent;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+    }
+
+    .ant-table-tbody > tr:last-child > td {
+      border-bottom: 0;
+    }
+  }
+
+  .room-table-primary {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    &__title,
+    &__subtitle {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    &__title {
+      font-size: 15px;
+      line-height: 22px;
+      font-weight: 700;
+      color: #182132;
+    }
+
+    &__subtitle {
+      font-size: 12px;
+      line-height: 18px;
+      color: #7c8799;
+    }
+  }
+
+  .room-table-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 100%;
+    padding: 8px 10px;
+    color: #42526b;
+    background: fade(@primary-color, 5%);
+    border-radius: 12px;
+
+    span {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  .room-table-platforms {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+  }
+
+  .room-table-platform {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: #f8fafc;
+    border: 1px solid rgba(15, 23, 42, 0.05);
+    border-radius: 10px;
+    cursor: help;
+
+    img {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .room-table-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+
+    &__tag {
+      margin-inline-end: 0;
+      font-weight: 600;
+      border-radius: 999px;
+    }
+
+    &__version {
+      font-size: 13px;
+      line-height: 20px;
+      color: #526077;
+      word-break: break-word;
+    }
+  }
+
+  .room-table-code {
+    display: inline-block;
+    padding: 6px 10px;
+    font-size: 12px;
+    line-height: 18px;
+    font-weight: 700;
+    color: #445067;
+    background: #f5f7fb;
+    border-radius: 999px;
+  }
+
+  .room-status-tag {
+    margin: 0;
+    padding: 4px 10px;
+    font-size: 12px;
+    line-height: 18px;
+    font-weight: 600;
+    border-radius: 999px;
+    border: 0;
+
+    &.is-active {
+      color: #1677ff;
+      background: fade(#1677ff, 10%);
+    }
+
+    &.is-pending {
+      color: #ad6800;
+      background: fade(#faad14, 18%);
+    }
+  }
+
+  .room-table-placeholder {
+    font-size: 13px;
+    line-height: 20px;
+    color: #9aa4b2;
+  }
+
+  @media screen and (max-width: 960px) {
+    &-sider {
+      width: 300px !important;
+      min-width: 300px !important;
+      max-width: 300px !important;
+      flex: 0 0 300px !important;
+    }
+
+    .room-group-header {
+      align-items: flex-start;
+      flex-direction: column;
+
+      &__chips {
+        justify-content: flex-start;
       }
-      &__value {
-        max-width: 100px;
-        height: 42px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        p {
-          font-weight: 500;
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-        }
-        // > * {
-        //   min-width: 0;
-        // }
-        img {
-          width: 24px;
-        }
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column !important;
+
+    &-sider {
+      width: 100% !important;
+      min-width: 100% !important;
+      max-width: 100% !important;
+      border-right: 0;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+    }
+
+    &-content {
+      padding: 16px;
+    }
+
+    .room-list-groups {
+      .ant-collapse-header {
+        padding: 16px !important;
       }
     }
   }

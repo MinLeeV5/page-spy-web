@@ -9,9 +9,10 @@ import LockSvg from '@/assets/image/lock.svg?react';
 
 interface Props {
   room: I.SpyRoom;
+  compact?: boolean;
 }
 
-export const DebugButton = ({ room }: Props) => {
+export const DebugButton = ({ room, compact = false }: Props) => {
   const { t } = useTranslation();
   const { connections, address, useSecret } = room;
   const client = connections.find(({ userId }) => userId === 'Client');
@@ -36,12 +37,14 @@ export const DebugButton = ({ room }: Props) => {
       <div>
         <Button
           type="primary"
+          size={compact ? 'middle' : 'large'}
           disabled={!client}
           style={{
-            width: '100%',
+            width: compact ? 'auto' : '100%',
+            minWidth: compact ? 88 : undefined,
             pointerEvents: !client ? 'none' : 'auto',
           }}
-          shape="round"
+          shape={compact ? 'default' : 'round'}
           onClick={startDebug}
         >
           <Space style={{ display: 'flex', justifyContent: 'center' }}>

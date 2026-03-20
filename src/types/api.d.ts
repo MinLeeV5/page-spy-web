@@ -3,8 +3,12 @@ declare namespace I {
 
   export interface SpyRoomTags {
     title?: string;
+    unique?: string;
+    url?: string;
     env?: RoomEnv;
     version?: string;
+    logo?: string;
+    roomLogo?: string;
     [key: string]: any;
   }
 
