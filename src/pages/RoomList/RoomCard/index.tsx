@@ -1,10 +1,14 @@
 import { parseUserAgent } from '@/utils/brand';
-import { Col, Tooltip, Row } from 'antd';
+import { LinkOutlined } from '@ant-design/icons';
+import { Col, Tooltip } from 'antd';
 import clsx from 'clsx';
 import { DebugButton } from '../DebugButton';
-import { PropsWithChildren, memo } from 'react';
+import { memo } from 'react';
 import {
   getRoomEnv,
+  getRoomTitle,
+  getRoomUrl,
+  getRoomUrlDisplay,
   getRoomVersion,
   getShortAddress,
   safeDecodeURI,
@@ -14,81 +18,93 @@ interface Props {
   room: I.SpyRoom;
 }
 
-const ConnDetailItem = ({
-  title,
-  children,
-}: PropsWithChildren<{ title: string }>) => {
-  return (
-    <div className="conn-detail">
-      <p className="conn-detail__title">{title}</p>
-      <div className="conn-detail__value">{children}</div>
-    </div>
-  );
-};
-
 export const RoomCard = memo(
   ({ room }: Props) => {
-    const { address, name, group, tags } = room;
+    const { address, name, group } = room;
     const decodeGroup = safeDecodeURI(group);
     const simpleAddress = getShortAddress(address);
+    const title = getRoomTitle(room);
+    const displayTitle = title || decodeGroup || '--';
+    const roomUrl = getRoomUrl(room);
+    const roomUrlDisplay = getRoomUrlDisplay(room);
     const env = getRoomEnv(room);
     const version = getRoomVersion(room);
+    const hasClient = room.connections.some(
+      ({ userId }) => userId === 'Client',
+    );
     const { os, browser } = parseUserAgent(name);
+    const metadata = [
+      env ? { label: env.toUpperCase(), className: 'is-env' } : null,
+      version ? { label: `v${version}`, className: '' } : null,
+    ].filter(Boolean) as { label: string; className: string }[];
+    const projectLabel =
+      decodeGroup && decodeGroup !== displayTitle ? decodeGroup : '';
 
     return (
-      <Col key={address} span={8} xl={6} xxl={4}>
+      <Col key={address} xs={24} sm={12} lg={8} xl={6} xxl={4}>
         <div className={clsx('connection-item')}>
-          <div className="connection-item__title">
-            <code style={{ fontSize: 36 }}>
-              <b>{simpleAddress}</b>
-            </code>
-            <Tooltip
-              title={`Title: ${tags.title?.toString() || '--'}`}
-              placement="right"
-            >
-              <div className="custom-title">
-                {tags.title?.toString() || '--'}
-              </div>
+          <div className="connection-item__hero">
+            <div className="connection-item__eyebrow">
+              <span
+                className={clsx('connection-item__status', {
+                  'is-online': hasClient,
+                  'is-offline': !hasClient,
+                })}
+              >
+                {hasClient ? 'Live' : 'Offline'}
+              </span>
+              <Tooltip title={address}>
+                <code className="connection-item__id">ID {simpleAddress}</code>
+              </Tooltip>
+            </div>
+            <Tooltip title={title || displayTitle} placement="topLeft">
+              <div className="connection-item__main-title">{displayTitle}</div>
             </Tooltip>
+            {projectLabel ? (
+              <Tooltip title={decodeGroup} placement="topLeft">
+                <div className="connection-item__project">{projectLabel}</div>
+              </Tooltip>
+            ) : null}
+            {roomUrl ? (
+              <Tooltip title={roomUrl} placement="topLeft">
+                <div className="connection-item__url">
+                  <LinkOutlined />
+                  <span>{roomUrlDisplay}</span>
+                </div>
+              </Tooltip>
+            ) : null}
           </div>
-          <Row wrap={false} style={{ marginBlock: 8 }}>
-            <Col flex={1}>
-              <ConnDetailItem title="Project">
-                <Tooltip title={decodeGroup}>
-                  <p style={{ fontSize: 16 }}>{decodeGroup}</p>
-                </Tooltip>
-              </ConnDetailItem>
-            </Col>
-            <Col flex={1}>
-              <ConnDetailItem title="OS">
-                <Tooltip title={`${os.name} ${os.version}`}>
+          {metadata.length ? (
+            <div className="connection-item__chips">
+              {metadata.map((item) => {
+                return (
+                  <span
+                    key={item.label}
+                    className={clsx('connection-item__chip', item.className)}
+                  >
+                    {item.label}
+                  </span>
+                );
+              })}
+            </div>
+          ) : null}
+          <div className="connection-item__footer">
+            <div className="connection-item__platforms">
+              <Tooltip title={`${os.name} ${os.version}`}>
+                <div className="connection-item__platform">
                   <img src={os.logo} alt="os logo" />
-                </Tooltip>
-              </ConnDetailItem>
-            </Col>
-            <Col flex={1}>
-              <ConnDetailItem title="Platform">
-                <Tooltip title={`${browser.name} ${browser.version}`}>
+                  <span>{os.name}</span>
+                </div>
+              </Tooltip>
+              <Tooltip title={`${browser.name} ${browser.version}`}>
+                <div className="connection-item__platform">
                   <img src={browser.logo} alt="browser logo" />
-                </Tooltip>
-              </ConnDetailItem>
-            </Col>
-          </Row>
-          <Row wrap={false} style={{ marginBottom: 12 }}>
-            <Col flex={1}>
-              <ConnDetailItem title="Env">
-                <p style={{ fontSize: 16 }}>{env ? env.toUpperCase() : '--'}</p>
-              </ConnDetailItem>
-            </Col>
-            <Col flex={2}>
-              <ConnDetailItem title="Version">
-                <Tooltip title={version || '--'}>
-                  <p style={{ fontSize: 14 }}>{version || '--'}</p>
-                </Tooltip>
-              </ConnDetailItem>
-            </Col>
-          </Row>
-          <DebugButton room={room} />
+                  <span>{browser.name}</span>
+                </div>
+              </Tooltip>
+            </div>
+            <DebugButton room={room} />
+          </div>
         </div>
       </Col>
     );
@@ -99,6 +115,7 @@ export const RoomCard = memo(
       old.group !== now.group ||
       old.address !== now.address ||
       old.tags.title !== now.tags.title ||
+      old.tags.url !== now.tags.url ||
       old.tags.env !== now.tags.env ||
       old.tags.version !== now.tags.version ||
       old.connections.length !== now.connections.length
